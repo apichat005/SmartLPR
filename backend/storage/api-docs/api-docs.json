@@ -1,0 +1,958 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Smart LPR API",
+        "description": "Open API for Smart LPR",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/gates": {
+            "get": {
+                "tags": [
+                    "gates"
+                ],
+                "summary": "Get list of gates",
+                "description": "Returns list of gates",
+                "operationId": "getGatesList",
+                "responses": {
+                    "200": {
+                        "description": "Response Message"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "gates"
+                ],
+                "summary": "Create a new gate",
+                "operationId": "719670e41b472ed0fdec949157689e49",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "gate_name": {
+                                        "description": "Gate name",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "gate_ip": {
+                                        "description": "Gate IP",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "gate_port": {
+                                        "description": "Gate Port",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "LoginName": {
+                                        "description": "Login Name",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "LoginPassword": {
+                                        "description": "Login Password",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "LoginPasswordgz": {
+                                        "description": "Compressed Login Password",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "short": {
+                                        "description": "I = In, O = Out",
+                                        "type": "string",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response with creation message"
+                    }
+                }
+            }
+        },
+        "/api/gates/{id}": {
+            "get": {
+                "tags": [
+                    "gates"
+                ],
+                "summary": "Get gate by id",
+                "operationId": "936a96195354965ff30d3d959104a9a0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the gate to return",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with gate details"
+                    },
+                    "404": {
+                        "description": "Gate not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "gates"
+                ],
+                "summary": "Delete gate by id",
+                "operationId": "a985b50247ebb512460b2f3c5fb7567d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the gate to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with delete message"
+                    }
+                }
+            }
+        },
+        "/api/gates/update": {
+            "post": {
+                "tags": [
+                    "gates"
+                ],
+                "summary": "Create a update gate",
+                "operationId": "3f3aa5d1bd4b39a5afa38602a01fd31a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "description": "ID of the gate to update",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "gate_name": {
+                                        "description": "Gate name",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "gate_ip": {
+                                        "description": "Gate IP",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "gate_port": {
+                                        "description": "Gate Port",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "LoginName": {
+                                        "description": "Login Name",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "LoginPassword": {
+                                        "description": "Login Password",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "LoginPasswordgz": {
+                                        "description": "Compressed Login Password",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "short": {
+                                        "description": "I = In, O = Out",
+                                        "type": "string",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response with update message"
+                    }
+                }
+            }
+        },
+        "/api/history/{date_start}/{date_end}/{gate}/{page}/{limit}": {
+            "get": {
+                "tags": [
+                    "History"
+                ],
+                "summary": "Get history of items",
+                "description": "Retrieve a history of items based on date range, gate, pagination, and limit",
+                "operationId": "index",
+                "parameters": [
+                    {
+                        "name": "date_start",
+                        "in": "query",
+                        "description": "Start date for filtering the list",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-01-01"
+                        }
+                    },
+                    {
+                        "name": "date_end",
+                        "in": "query",
+                        "description": "End date for filtering the list",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-01-31"
+                        }
+                    },
+                    {
+                        "name": "gate",
+                        "in": "query",
+                        "description": "Gate number for filtering the list",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "A1"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/history": {
+            "post": {
+                "tags": [
+                    "History"
+                ],
+                "summary": "Store a newly created history in storage",
+                "operationId": "9cb0da747db893bc2f6e873291d6757c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "lpr": {
+                                        "description": "License plate recognition (LPR) value",
+                                        "type": "string",
+                                        "example": "ABC1234"
+                                    },
+                                    "type": {
+                                        "description": "Type of the list entry",
+                                        "type": "string",
+                                        "example": "Vehicle"
+                                    },
+                                    "traffic_type": {
+                                        "description": "Type of traffic (e.g., 'Entry' or 'Exit')",
+                                        "type": "string",
+                                        "example": "Entry"
+                                    },
+                                    "image": {
+                                        "description": "Image file associated with the entry",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "gate_id": {
+                                        "description": "ID of the gate where the traffic occurred",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "timestamp": {
+                                        "description": "Timestamp when the entry was recorded",
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-09-04T10:00:00Z"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "History created successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/history/{id}": {
+            "get": {
+                "tags": [
+                    "History"
+                ],
+                "summary": "Display the specified history",
+                "operationId": "c6638f4737e3b686f7356cf7ee521b23",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the history to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "History retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/lines": {
+            "get": {
+                "tags": [
+                    "lines"
+                ],
+                "summary": "Get all lines",
+                "operationId": "ef5bce87b9f6a3e0f45adb3402238500",
+                "responses": {
+                    "200": {
+                        "description": "List all lines"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "lines"
+                ],
+                "summary": "Create a new line",
+                "operationId": "cc272dc99053db1c534aee291d521cf5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "line_token": {
+                                        "description": "Line token",
+                                        "type": "string",
+                                        "example": "line_token"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Create a new line"
+                    }
+                }
+            }
+        },
+        "/api/lines/{id}": {
+            "get": {
+                "tags": [
+                    "lines"
+                ],
+                "summary": "Get line by id",
+                "operationId": "81e11ea1d9df494e76fe5640ae48bac0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the line",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get line by id"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "lines"
+                ],
+                "summary": "Delete line by id",
+                "operationId": "b106eac9729504747f21ee2e3fbd934e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the line",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete line by id"
+                    }
+                }
+            }
+        },
+        "/api/lines/update": {
+            "post": {
+                "tags": [
+                    "lines"
+                ],
+                "summary": "Update line by id",
+                "operationId": "1ac62d01ac9d173093b90e2cfac5d1b3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "line_token": {
+                                        "description": "Line token",
+                                        "type": "string",
+                                        "example": "line_token"
+                                    },
+                                    "id": {
+                                        "description": "ID of the line",
+                                        "type": "string",
+                                        "example": "id"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Update line by id"
+                    }
+                }
+            }
+        },
+        "/api/type_list": {
+            "get": {
+                "tags": [
+                    "list_types"
+                ],
+                "summary": "Get list of list types",
+                "description": "Returns list of list types",
+                "operationId": "5026525fcbdbfc785b93c674241b60eb",
+                "responses": {
+                    "200": {
+                        "description": "Response Message"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "list_types"
+                ],
+                "summary": "Create a new list type",
+                "operationId": "56eb8104ae945f2b8acd377bd14ef7ce",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "type_name": {
+                                        "description": "List type name",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "send_line": {
+                                        "description": "Send line",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "open_gate": {
+                                        "description": "Open gate",
+                                        "type": "string",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response Message"
+                    }
+                }
+            }
+        },
+        "/api/type_list/{id}": {
+            "get": {
+                "tags": [
+                    "list_types"
+                ],
+                "summary": "Get list type by id",
+                "description": "Returns list type by id",
+                "operationId": "736f5932ac01f6f560d443761b80b24a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the list type",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response Message"
+                    }
+                }
+            }
+        },
+        "/api/type_list/update": {
+            "post": {
+                "tags": [
+                    "list_types"
+                ],
+                "summary": "Create a new list type",
+                "operationId": "3979a6a81dc5ac5beaa100badc398ae4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "description": "List type name",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "type_name": {
+                                        "description": "List type name",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "send_line": {
+                                        "description": "Send line",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "open_gate": {
+                                        "description": "Open gate",
+                                        "type": "string",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response Message"
+                    }
+                }
+            }
+        },
+        "/api/list": {
+            "get": {
+                "tags": [
+                    "Lists"
+                ],
+                "summary": "Get list of lists",
+                "description": "Returns list of lists",
+                "operationId": "getListsList",
+                "responses": {
+                    "200": {
+                        "description": "Response Message"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Lists"
+                ],
+                "summary": "Create a new list with dynamic fields",
+                "operationId": "createLists",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "fullname": {
+                                        "description": "Full name of the person",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "lpr": {
+                                        "description": "License plate number",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "note": {
+                                        "description": "Additional notes",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "type_list_id": {
+                                        "description": "List type id",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "start_date": {
+                                        "description": "Start date",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "start_end": {
+                                        "description": "end date",
+                                        "type": "string",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object",
+                                "additionalProperties": {
+                                    "description": "Any additional fields provided dynamically",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List created successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/list/{id}": {
+            "get": {
+                "tags": [
+                    "Lists"
+                ],
+                "summary": "Get list of lists",
+                "description": "Returns list of lists",
+                "operationId": "getListsById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the list to be retrieved",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response Message"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Lists"
+                ],
+                "summary": "Delete a list",
+                "description": "Delete a list by its ID",
+                "operationId": "deleteLists",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the list to be deleted",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List deleted successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "404": {
+                        "description": "List not found"
+                    }
+                }
+            }
+        },
+        "/api/list/update": {
+            "post": {
+                "tags": [
+                    "Lists"
+                ],
+                "summary": "Create a new list with dynamic fields",
+                "operationId": "updateLists",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "description": "ID of the list",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "fullname": {
+                                        "description": "Full name of the person",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "lpr": {
+                                        "description": "License plate number",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "note": {
+                                        "description": "Additional notes",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "type_list_id": {
+                                        "description": "List type id",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "start_date": {
+                                        "description": "Start date",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "start_end": {
+                                        "description": "end date",
+                                        "type": "string",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object",
+                                "additionalProperties": {
+                                    "description": "Any additional fields provided dynamically",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List created successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/webhook": {
+            "get": {
+                "tags": [
+                    "webhook"
+                ],
+                "summary": "Get all webhooks",
+                "operationId": "2cfc88d49187447e9732ca1ff78186e5",
+                "responses": {
+                    "200": {
+                        "description": "List all webhooks"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "webhook"
+                ],
+                "summary": "Retrieve the specified webhook using form data",
+                "operationId": "b12641db2cb8b6a17a9334e7df20537b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "webhook": {
+                                        "description": "ID of the history to retrieve",
+                                        "type": "string",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the specified webhook"
+                    },
+                    "400": {
+                        "description": "webhook not found"
+                    }
+                }
+            }
+        },
+        "/api/webhook/update": {
+            "post": {
+                "tags": [
+                    "webhook"
+                ],
+                "summary": "Update the specified webhook using form data",
+                "operationId": "42f27eec9eec4ea6a5bbd7affbc55459",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "webhook": {
+                                        "description": "Webhook URL to update",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "id": {
+                                        "description": "ID of the webhook to update",
+                                        "type": "string",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Webhook updated successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/webhook/{id}": {
+            "delete": {
+                "tags": [
+                    "webhook"
+                ],
+                "summary": "Delete the specified webhook",
+                "operationId": "7384d621d1194830ecc525f79b98e274",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the webhook to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "1a2b3c4d"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Webhook deleted successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "404": {
+                        "description": "Webhook not found"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "gates",
+            "description": "gates"
+        },
+        {
+            "name": "History",
+            "description": "History"
+        },
+        {
+            "name": "lines",
+            "description": "lines"
+        },
+        {
+            "name": "list_types",
+            "description": "list_types"
+        },
+        {
+            "name": "Lists",
+            "description": "Lists"
+        },
+        {
+            "name": "webhook",
+            "description": "webhook"
+        }
+    ]
+}
