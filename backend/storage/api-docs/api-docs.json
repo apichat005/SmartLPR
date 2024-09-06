@@ -760,7 +760,7 @@
                                         "format": "date",
                                         "example": "2024-09-01"
                                     },
-                                    "start_end": {
+                                    "end_date": {
                                         "description": "End date",
                                         "type": "string",
                                         "format": "date",
@@ -881,7 +881,7 @@
                                         "type": "string",
                                         "example": ""
                                     },
-                                    "start_end": {
+                                    "end_date": {
                                         "description": "end date",
                                         "type": "string",
                                         "example": ""

@@ -9,5 +9,6 @@ use MongoDB\Laravel\Eloquent\Model;
 class lists extends Model
 {
     use HasFactory;
+    protected $collection = 'lists';
     public $timestamps = false;
 }

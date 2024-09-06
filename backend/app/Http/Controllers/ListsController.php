@@ -128,7 +128,7 @@ class ListsController extends Controller
      *                     example="2024-09-01"
      *                 ),
      *                 @OA\Property(
-     *                     property="start_end",
+     *                     property="end_date",
      *                     type="string",
      *                     format="date",
      *                     description="End date",
@@ -266,7 +266,7 @@ class ListsController extends Controller
      *                     example=""
      *                 ),
      *                 @OA\Property(
-     *                     property="start_end",
+     *                     property="end_date",
      *                     type="string",
      *                     description="end date",
      *                     example=""

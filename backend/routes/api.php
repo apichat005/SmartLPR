@@ -10,6 +10,7 @@ use App\Http\Controllers\ListsController;
 use App\Http\Controllers\HistorysController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\AccountController;
+use App\Models\lists;
 
 Route::prefix('/lines')->group(function () {
     Route::get('/', [LinesController::class, 'index']);
@@ -56,10 +57,35 @@ Route::prefix('/webhook')->group(function () {
     Route::delete('/{id}', [WebhookController::class, 'destroy']);
 });
 
-Route::prefix('/accounts')->group(function(){
+Route::prefix('/accounts')->group(function () {
     Route::get('/{page}/{limit}', [AccountController::class, 'index']);
     Route::post('/', [AccountController::class, 'store']);
     Route::get('/{id}', [AccountController::class, 'show']);
     Route::post('/update', [AccountController::class, 'update']);
     Route::delete('/{id}', [AccountController::class, 'destroy']);
+});
+
+Route::get('/test', function () {
+    $res = lists::raw(function($collection) {
+        return $collection->aggregate([
+            [
+                '$lookup' => [
+                    'from' => 'list_types',    // ชื่อคอลเลกชันที่ต้องการ join
+                    'let' => [ 'type_list_id' => [ '$toObjectId' => '$type_list_id' ] ],
+                    'pipeline' => [
+                        [
+                            '$match' => [
+                                '$expr' => [
+                                    '$eq' => ['$_id', '$$type_list_id']
+                                ]
+                            ]
+                        ]
+                    ],
+                    'as' => 'list_type'   // ชื่อฟิลด์ที่จะเก็บข้อมูลที่ lookup
+                ]
+            ]
+        ]);
+    });
+
+    return response()->json($res->toArray());
 });
