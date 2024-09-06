@@ -6,6 +6,44 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/accounts/{page}/{limit}": {
+            "get": {
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Get accounts of items",
+                "description": "Retrieve a accounts of items based on date range, gate, pagination, and limit",
+                "operationId": "accounts",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "description": "Page number",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "path",
+                        "description": "Limit number",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
         "/api/gates": {
             "get": {
                 "tags": [
@@ -204,43 +242,43 @@
                 ],
                 "summary": "Get history of items",
                 "description": "Retrieve a history of items based on date range, gate, pagination, and limit",
-                "operationId": "index",
+                "operationId": "history",
                 "parameters": [
                     {
                         "name": "date_start",
-                        "in": "query",
+                        "in": "path",
                         "description": "Start date for filtering the list",
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "date",
-                            "example": "2023-01-01"
+                            "format": "datetime",
+                            "example": "2024-09-01 00:00:00"
                         }
                     },
                     {
                         "name": "date_end",
-                        "in": "query",
+                        "in": "path",
                         "description": "End date for filtering the list",
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "date",
-                            "example": "2023-01-31"
+                            "format": "datetime",
+                            "example": "2024-09-05 23:59:59"
                         }
                     },
                     {
                         "name": "gate",
-                        "in": "query",
+                        "in": "path",
                         "description": "Gate number for filtering the list",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "example": "A1"
+                            "example": "66d9965ec312805ebe04d8bd"
                         }
                     },
                     {
                         "name": "page",
-                        "in": "query",
+                        "in": "path",
                         "description": "Page number for pagination",
                         "required": false,
                         "schema": {
@@ -250,7 +288,7 @@
                     },
                     {
                         "name": "limit",
-                        "in": "query",
+                        "in": "path",
                         "description": "Number of items per page",
                         "required": false,
                         "schema": {
@@ -611,20 +649,79 @@
                 }
             }
         },
-        "/api/list": {
+        "/api/list/{date_start}/{date_end}/{gate}/{page}/{limit}": {
             "get": {
                 "tags": [
                     "Lists"
                 ],
-                "summary": "Get list of lists",
-                "description": "Returns list of lists",
-                "operationId": "getListsList",
+                "summary": "Get history of items",
+                "description": "Retrieve a list of items based on date range, gate, pagination, and limit",
+                "operationId": "index",
+                "parameters": [
+                    {
+                        "name": "date_start",
+                        "in": "query",
+                        "description": "Start date for filtering the list",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-01-01"
+                        }
+                    },
+                    {
+                        "name": "date_end",
+                        "in": "query",
+                        "description": "End date for filtering the list",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-01-31"
+                        }
+                    },
+                    {
+                        "name": "gate",
+                        "in": "query",
+                        "description": "Gate number for filtering the list",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "A1"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Response Message"
+                        "description": "List retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
                     }
                 }
-            },
+            }
+        },
+        "/api/list": {
             "post": {
                 "tags": [
                     "Lists"
@@ -640,39 +737,37 @@
                                     "fullname": {
                                         "description": "Full name of the person",
                                         "type": "string",
-                                        "example": ""
+                                        "example": "John Doe"
                                     },
                                     "lpr": {
                                         "description": "License plate number",
                                         "type": "string",
-                                        "example": ""
+                                        "example": "ABC123"
                                     },
                                     "note": {
                                         "description": "Additional notes",
                                         "type": "string",
-                                        "example": ""
+                                        "example": "Some notes"
                                     },
                                     "type_list_id": {
                                         "description": "List type id",
                                         "type": "string",
-                                        "example": ""
+                                        "example": "123"
                                     },
                                     "start_date": {
                                         "description": "Start date",
                                         "type": "string",
-                                        "example": ""
+                                        "format": "date",
+                                        "example": "2024-09-01"
                                     },
                                     "start_end": {
-                                        "description": "end date",
+                                        "description": "End date",
                                         "type": "string",
-                                        "example": ""
+                                        "format": "date",
+                                        "example": "2024-09-30"
                                     }
                                 },
-                                "type": "object",
-                                "additionalProperties": {
-                                    "description": "Any additional fields provided dynamically",
-                                    "type": "string"
-                                }
+                                "type": "object"
                             }
                         }
                     }
@@ -930,6 +1025,10 @@
         }
     },
     "tags": [
+        {
+            "name": "accounts",
+            "description": "accounts"
+        },
         {
             "name": "gates",
             "description": "gates"

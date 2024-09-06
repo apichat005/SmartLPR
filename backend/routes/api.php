@@ -9,6 +9,7 @@ use App\Http\Controllers\ListTypesController;
 use App\Http\Controllers\ListsController;
 use App\Http\Controllers\HistorysController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\AccountController;
 
 Route::prefix('/lines')->group(function () {
     Route::get('/', [LinesController::class, 'index']);
@@ -35,7 +36,7 @@ Route::prefix('/type_list')->group(function () {
 });
 
 Route::prefix('/list')->group(function () {
-    Route::get('/', [ListsController::class, 'index']);
+    Route::get('/{date_start}/{date_end}/{page}/{limit}', [ListsController::class, 'index']);
     Route::post('/', [ListsController::class, 'store']);
     Route::get('/{id}', [ListsController::class, 'show']);
     Route::post('/update', [ListsController::class, 'update']);
@@ -53,4 +54,12 @@ Route::prefix('/webhook')->group(function () {
     Route::get('/', [WebhookController::class, 'index']);
     Route::post('/update', [WebhookController::class, 'update']);
     Route::delete('/{id}', [WebhookController::class, 'destroy']);
+});
+
+Route::prefix('/accounts')->group(function(){
+    Route::get('/{page}/{limit}', [AccountController::class, 'index']);
+    Route::post('/', [AccountController::class, 'store']);
+    Route::get('/{id}', [AccountController::class, 'show']);
+    Route::post('/update', [AccountController::class, 'update']);
+    Route::delete('/{id}', [AccountController::class, 'destroy']);
 });

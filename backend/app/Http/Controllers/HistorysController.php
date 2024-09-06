@@ -6,6 +6,7 @@ use App\Models\historys;
 use App\Models\lists;
 use App\Models\webhook;
 use App\Models\log_webhook;
+use App\Models\log_lpr_diffs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -14,45 +15,45 @@ class HistorysController extends Controller
     /**
      * @OA\Get(
      *     path="/api/history/{date_start}/{date_end}/{gate}/{page}/{limit}",
-     *     operationId="index",
+     *     operationId="history",
      *     tags={"History"},
      *     summary="Get history of items",
      *     description="Retrieve a history of items based on date range, gate, pagination, and limit",
      *     @OA\Parameter(
      *         name="date_start",
-     *         in="query",
+     *         in="path",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
-     *             format="date",
-     *             example="2023-01-01"
+     *             format="datetime",
+     *             example="2024-09-01 00:00:00"
      *         ),
      *         description="Start date for filtering the list"
      *     ),
      *     @OA\Parameter(
      *         name="date_end",
-     *         in="query",
+     *         in="path",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
-     *             format="date",
-     *             example="2023-01-31"
+     *             format="datetime",
+     *             example="2024-09-05 23:59:59"
      *         ),
      *         description="End date for filtering the list"
      *     ),
      *     @OA\Parameter(
      *         name="gate",
-     *         in="query",
+     *         in="path",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
-     *             example="A1"
+     *             example="66d9965ec312805ebe04d8bd"
      *         ),
      *         description="Gate number for filtering the list"
      *     ),
      *     @OA\Parameter(
      *         name="page",
-     *         in="query",
+     *         in="path",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -62,7 +63,7 @@ class HistorysController extends Controller
      *     ),
      *     @OA\Parameter(
      *         name="limit",
-     *         in="query",
+     *         in="path",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -82,16 +83,24 @@ class HistorysController extends Controller
      */
     public function index($date_start, $date_end, $gate, $page, $limit)
     {
-        /**
-         * 1. ค้นหาประวัติโดยกรองข้อมูลด้วยวันที่เริ่มต้นและสิ้นสุด
-         * 2. join กับตาราง gates
-         */
-        $historys = historys::whereBetween('timestamp', [$date_start, $date_end])
-            ->join('gates', 'historys.gate_id', '=', 'gates._id')
-            ->select('historys.*', 'gates.gate')
-            ->get();
+        // Step 1: Convert string dates into proper formats for comparison
+        $date_start = date('Y-m-d H:i:s', strtotime($date_start));
+        $date_end = date('Y-m-d H:i:s', strtotime($date_end));
 
-        return response()->json($historys);
+        // Step 2: Convert string gate IDs into an array
+        $gateArray = array_filter(explode(',', $gate)); // Filter out any empty values
+
+        // Step 3: Query the database for the correct date range and gate IDs
+        $history = historys::whereBetween('timestamp', [$date_start, $date_end])
+            ->whereIn('gate_id', $gateArray) // Use whereIn for array comparison
+            ->paginate($limit, ['*'], 'page', $page);
+
+        return response()->json([
+            'status' => 200,
+            'data' => $history,
+            'date_start' => $date_start,
+            'date_end' => $date_end,
+        ]);
     }
 
     /**
@@ -161,10 +170,10 @@ class HistorysController extends Controller
             if (empty($request->lpr)) {
                 return response()->json(['status' => 400, 'message' => 'ไม่พบข้อมูลป้ายทะเบียน']);
             } else {
-
-                // check lpr for duplicate
-                if ($this->compareLicensePlate($request->lpr)) {
-                    return response()->json(['status' => 400, 'message' => 'ป้ายทะเบียนซ้ำ']);
+                // ตรวจสอบป้ายทะเบียนตามเงื่อนไขที่กำหนด
+                $lpr = $this->compareLicensePlate($request->lpr);
+                if ($lpr['status']) {
+                    return response()->json(['status' => 400, 'message' => $lpr['status_txt'], 'lpr' => $lpr['lpr'], 'log' => $lpr['log']]);
                 }
 
                 $image = $request->file('image');
@@ -172,7 +181,7 @@ class HistorysController extends Controller
                 $image->move(public_path('images'), $image_name);
 
                 $history = new historys();
-                $history->lpr = $request->lpr;
+                $history->lpr = $lpr['lpr_right'];
                 $history->type = $request->type;
                 $history->traffic_type = $request->traffic_type;
                 $history->image = $image_name;
@@ -191,7 +200,7 @@ class HistorysController extends Controller
                         try {
                             // ส่งข้อมูลไปยัง webhook
                             $response = Http::post($webhook->webhook, [
-                                'lpr' => $request->lpr,
+                                'lpr' => $lpr['lpr_right'],
                                 'type' => $request->type,
                                 'traffic_type' => $request->traffic_type,
                                 'image' => $request->image_name, // สมมติว่า $image_name เป็นตัวแปรที่เก็บชื่อภาพ
@@ -218,7 +227,7 @@ class HistorysController extends Controller
                             // จัดการกับข้อผิดพลาดที่เกิดขึ้นในการเชื่อมต่อ
                             $logWebhook = new log_webhook();
                             $logWebhook->webhook_id = $webhook->id;
-                            $logWebhook->response = 'Connection Failed';
+                            $logWebhook->response = 'Connection Error';
                             $logWebhook->timestamp = now()->toDateTimeString();
                             $logWebhook->save();
 
@@ -256,24 +265,63 @@ class HistorysController extends Controller
          * ใช้ ai หรือ algorithm ในการเปรียบเทียบป้ายทะเบียน โดยใช้ library ที่เหมาะสม
          */
 
-        //  levenshtein
+        // กำหนดค่า maxDistance สำหรับการเปรียบเทียบ
         $maxDistance = 1;
         $status = false;
-        $existingPlates = historys::select('lpr')->where('timestamp', '>', date('Y-m-d H:i:s', strtotime('-3 minutes')))->get();
+        $status_txt = '';
+
+        // ค้นหาป้ายทะเบียนที่อยู่ในตาราง historys และตรวจสอบเวลาสุดท้าย
+        $existingPlates = historys::select('lpr', 'timestamp')
+            ->where('timestamp', '>', date('Y-m-d H:i:s', strtotime('-1 minutes')))
+            ->get();
+
         foreach ($existingPlates as $plate) {
             if (levenshtein($lpr, $plate->lpr) <= $maxDistance) {
-                $status = true;
+                $status = true; // ถ้ามีป้ายทะเบียนใกล้เคียงให้ตั้งสถานะเป็นจริง
+                $status_txt = 'ป้ายทะเบียนใกล้เคียงใน historys';
+                break; // ไม่มีความจำเป็นต้องตรวจสอบเพิ่มเติมใน historys
             }
         }
 
+        // ค้นหาป้ายทะเบียนในตาราง lists
         $lists = lists::select('lpr')->get();
+        $lpr_right = '';
         foreach ($lists as $list) {
             if (levenshtein($lpr, $list->lpr) <= $maxDistance) {
-                $status = true;
+                // หาและบันทึกข้อผิดพลาดระหว่างป้ายทะเบียน
+                $diff = '';
+                $similarity = 0;
+                // หาข้อแตกต่างระหว่างป้ายทะเบียน
+                similar_text($lpr, $list->lpr, $similarity);
+                $similarity = number_format($similarity, 2);
+                $diff .= "ความคล้ายกัน: $similarity%\n";
+                $diff .= "ป้ายทะเบียน: $lpr\n";
+                $diff .= "ป้ายทะเบียนใน lists: {$list->lpr}\n";
+
+                // ถ้ามีข้อแตกต่าง บันทึกข้อผิดพลาดลงในไฟล์
+                if (!empty($diff) && $similarity < 100) {
+                    $logLprDiff = new log_lpr_diffs();
+                    $logLprDiff->lpr1 = $lpr;
+                    $logLprDiff->lpr2 = $list->lpr;
+                    $logLprDiff->diff = $diff;
+                    $logLprDiff->timestamp = now()->toDateTimeString();
+                    $logLprDiff->save();
+                }
+
+                $status = false; // ตั้งสถานะเป็นจริงถ้าพบป้ายทะเบียนที่ใกล้เคียงใน lists
+                $lpr_right = $list->lpr; // ตั้งค่าป้ายทะเบียนใหม่เป็นป้ายทะเบียนใน lists
+                $status_txt = 'ป้ายทะเบียนใกล้เคียงใน lists';
+                break; // ไม่มีความจำเป็นต้องตรวจสอบเพิ่มเติมใน lists
             }
         }
 
-        return $status;
+        // คืนค่าสถานะว่าเจอป้ายทะเบียนที่ใกล้เคียงหรือไม่ ป้ายทะเบียนที่ถูกต้อง
+        return [
+            'status' => $status,
+            'status_txt' => $status_txt,
+            'log' =>  $diff ?? '',
+            'lpr_right' => $lpr_right,
+        ];
     }
 
     /**

@@ -9,23 +9,80 @@ use Illuminate\Http\Request;
 class ListsController extends Controller
 {
     /**
-     * /**
      * @OA\Get(
-     *      path="/api/list",
-     *      operationId="getListsList",
-     *      tags={"Lists"},
-     *      summary="Get list of lists",
-     *      description="Returns list of lists",
-     *      @OA\Response(
-     *          response=200,
-     *          description="Response Message",
-     *       ),
+     *     path="/api/list/{date_start}/{date_end}/{gate}/{page}/{limit}",
+     *     operationId="index",
+     *     tags={"Lists"},
+     *     summary="Get history of items",
+     *     description="Retrieve a list of items based on date range, gate, pagination, and limit",
+     *     @OA\Parameter(
+     *         name="date_start",
+     *         in="query",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *             format="date",
+     *             example="2023-01-01"
+     *         ),
+     *         description="Start date for filtering the list"
+     *     ),
+     *     @OA\Parameter(
+     *         name="date_end",
+     *         in="query",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *             format="date",
+     *             example="2023-01-31"
+     *         ),
+     *         description="End date for filtering the list"
+     *     ),
+     *     @OA\Parameter(
+     *         name="gate",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *             example="A1"
+     *         ),
+     *         description="Gate number for filtering the list"
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *             example=1
+     *         ),
+     *         description="Page number for pagination"
+     *     ),
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *             example=10
+     *         ),
+     *         description="Number of items per page"
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List retrieved successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid input"
      *     )
-     * Display a listing of the resource.
+     * )
      */
-    public function index()
+    public function index($date_start, $date_end, $page, $limit)
     {
-        return lists::all();
+        $historys = lists::whereBetween('timestamp', [$date_start, $date_end])
+            ->paginate($limit, ['*'], 'page', $page);
+
+        return response()->json($historys);
     }
 
     /**
@@ -43,42 +100,40 @@ class ListsController extends Controller
      *                     property="fullname",
      *                     type="string",
      *                     description="Full name of the person",
-     *                     example=""
+     *                     example="John Doe"
      *                 ),
      *                 @OA\Property(
      *                     property="lpr",
      *                     type="string",
      *                     description="License plate number",
-     *                     example=""
+     *                     example="ABC123"
      *                 ),
      *                 @OA\Property(
      *                     property="note",
      *                     type="string",
      *                     description="Additional notes",
-     *                     example=""
+     *                     example="Some notes"
      *                 ),
      *                 @OA\Property(
      *                     property="type_list_id",
      *                     type="string",
      *                     description="List type id",
-     *                     example=""
+     *                     example="123"
      *                 ),
      *                 @OA\Property(
      *                     property="start_date",
      *                     type="string",
+     *                     format="date",
      *                     description="Start date",
-     *                     example=""
+     *                     example="2024-09-01"
      *                 ),
      *                 @OA\Property(
      *                     property="start_end",
      *                     type="string",
-     *                     description="end date",
-     *                     example=""
+     *                     format="date",
+     *                     description="End date",
+     *                     example="2024-09-30"
      *                 ),
-     *                 @OA\AdditionalProperties(
-     *                     type="string",
-     *                     description="Any additional fields provided dynamically"
-     *                 )
      *             )
      *         )
      *     ),
@@ -115,14 +170,15 @@ class ListsController extends Controller
 
             $log = new log_lists();
             $log->ref_id = $list->_id;
-            $log->type = 'add';
+            $log->type = 'Add';
             $log->msg = 'เพิ่มข้อมูลรายการ';
             $log->timestamp = date('Y-m-d H:i:s');
             $log->save();
 
             return response()->json([
                 'status' => 200,
-                'message' => 'เพิ่มข้อมูลเรียบร้อยแล้ว'
+                'message' => 'เพิ่มข้อมูลเรียบร้อยแล้ว',
+                'data' => $request->all()
             ]);
         }
     }

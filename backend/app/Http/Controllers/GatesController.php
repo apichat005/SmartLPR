@@ -111,10 +111,12 @@ class GatesController extends Controller
             $log_gates->save();
 
             return response()->json([
+                "status" => 200,
                 "message" => "gate record created"
             ], 200);
         } else {
             return response()->json([
+                "status" => 400,
                 "message" => "gate_name is required"
             ], 400);
         }

@@ -8,11 +8,44 @@ use Illuminate\Http\Request;
 class AccountController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/accounts/{page}/{limit}",
+     *     operationId="accounts",
+     *     tags={"accounts"},
+     *     summary="Get accounts of items",
+     *     description="Retrieve a accounts of items based on date range, gate, pagination, and limit",
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="path",
+     *         description="Page number",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="path",
+     *         description="Limit number",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List retrieved successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid input"
+     *     )
+     * )
      */
-    public function index()
+    public function index($page, $limit)
     {
-        //
+        $data = account::paginate($limit, ['*'], 'page', $page);
+        return response()->json($data);
     }
 
     /**
