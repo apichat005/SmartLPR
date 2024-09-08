@@ -11,7 +11,7 @@ class GatesController extends Controller
     /**
      * /**
      * @OA\Get(
-     *      path="/api/gates",
+     *      path="/api/v1/gates",
      *      operationId="getGatesList",
      *      tags={"gates"},
      *      summary="Get list of gates",
@@ -29,7 +29,7 @@ class GatesController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/gates",
+     *     path="/api/v1/gates",
      *     summary="Create a new gate",
      *     tags={"gates"},
      *     @OA\RequestBody(
@@ -124,7 +124,7 @@ class GatesController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/gates/{id}",
+     *     path="/api/v1/gates/{id}",
      *    summary="Get gate by id",
      *    tags={"gates"},
      *   @OA\Parameter(
@@ -169,7 +169,7 @@ class GatesController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/gates/update",
+     *     path="/api/v1/gates/update",
      *     summary="Create a update gate",
      *     tags={"gates"},
      *     @OA\RequestBody(
@@ -258,10 +258,12 @@ class GatesController extends Controller
 
             $gate->save();
             return response()->json([
+                "status" => 200,
                 "message" => "gate record updated"
             ], 200);
         } else {
             return response()->json([
+                "status" => 400,
                 "message" => "gate_name is required"
             ], 400);
         }
@@ -269,7 +271,7 @@ class GatesController extends Controller
 
     /**
      * @OA\Delete(
-     *    path="/api/gates/{id}",
+     *    path="/api/v1/gates/{id}",
      *   summary="Delete gate by id",
      * tags={"gates"},
      * @OA\Parameter(

@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\account;
+use App\Models\token;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+
 
 class AccountController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/accounts/{page}/{limit}",
+     *     path="/api/v1/accounts/{page}/{limit}",
      *     operationId="accounts",
      *     tags={"accounts"},
      *     summary="Get accounts of items",
@@ -49,14 +53,6 @@ class AccountController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -65,11 +61,34 @@ class AccountController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *    path="/api/v1/accounts/{id}", 
+     *   summary="Get account by ID",
+     *  tags={"accounts"},
+     * @OA\Parameter(
+     *   name="id",
+     * in="path",
+     * description="ID of account to return",
+     * required=true,
+     * @OA\Schema(
+     *  type="string"
+     * )
+     * ),
+     * @OA\Response(
+     * response=200,
+     * description="successful operation"
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="account not found"
+     * )
+     * )
      * Display the specified resource.
      */
-    public function show(account $account)
+    public function show($id)
     {
-        //
+        $data = account::find($id);
+        return response()->json($data);
     }
 
     /**
@@ -94,5 +113,86 @@ class AccountController extends Controller
     public function destroy(account $account)
     {
         //
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/login",
+     *     summary="Login",
+     *     tags={"login"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="username",
+     *                     type="string",
+     *                     description="Username",
+     *                     example="username"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     type="string",
+     *                     description="Password",
+     *                     example="password"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid input"
+     *     )
+     * )
+     */ 
+    public function login(Request $request)
+    {
+        // สร้าง token ใหม่ และส่งกลับไป
+        $res = account::raw(function ($collection) use ($request) {
+            return $collection->aggregate([
+                [
+                    '$match' => [
+                        'a_username' => $request->username,
+                        'a_password' => $request->password
+                    ]
+                ],
+                [
+                    '$lookup' => [
+                        'from' => 'role_lists',
+                        'let' => ['a_role' => ['$toObjectId' => '$a_role']],
+                        'pipeline' => [
+                            [
+                                '$match' => [
+                                    '$expr' => [
+                                        '$eq' => ['$_id', '$$a_role']
+                                    ]
+                                ]
+                            ]
+                        ],
+                        'as' => 'role'
+                    ]
+                ]
+            ]);
+        });
+
+        if ($res) {
+            $token = bin2hex(random_bytes(32));
+
+            $db_token = new token();
+            $db_token->t_token = $token;
+            $db_token->t_account = $res[0]['_id'];
+            $db_token->t_date = now()->toDateTimeString();
+            $db_token->t_ip = $request->header('X-Forwarded-For') ?? $request->server('REMOTE_ADDR');
+            $db_token->save();
+
+            return response()->json(['status' => 200, 'token' => $token, 'account' => $res]);
+        } else {
+            return response()->json(['status' => 400]);
+        }
     }
 }

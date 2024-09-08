@@ -5,51 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\lists;
 use App\Models\log_lists;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ListsController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/list/{date_start}/{date_end}/{gate}/{page}/{limit}",
+     *     path="/api/v1/list/{page}/{limit}",
      *     operationId="index",
      *     tags={"Lists"},
      *     summary="Get history of items",
      *     description="Retrieve a list of items based on date range, gate, pagination, and limit",
      *     @OA\Parameter(
-     *         name="date_start",
-     *         in="query",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *             format="date",
-     *             example="2023-01-01"
-     *         ),
-     *         description="Start date for filtering the list"
-     *     ),
-     *     @OA\Parameter(
-     *         name="date_end",
-     *         in="query",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *             format="date",
-     *             example="2023-01-31"
-     *         ),
-     *         description="End date for filtering the list"
-     *     ),
-     *     @OA\Parameter(
-     *         name="gate",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *             example="A1"
-     *         ),
-     *         description="Gate number for filtering the list"
-     *     ),
-     *     @OA\Parameter(
      *         name="page",
-     *         in="query",
+     *         in="path",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -59,7 +28,7 @@ class ListsController extends Controller
      *     ),
      *     @OA\Parameter(
      *         name="limit",
-     *         in="query",
+     *         in="path",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -77,17 +46,89 @@ class ListsController extends Controller
      *     )
      * )
      */
-    public function index($date_start, $date_end, $page, $limit)
+    public function index($page, $limit, Request $request)
     {
-        $historys = lists::whereBetween('timestamp', [$date_start, $date_end])
-            ->paginate($limit, ['*'], 'page', $page);
+        // ตรวจสอบว่ามีการส่งค่า type_list_id มาหรือไม่ แปลงเป็น array
 
-        return response()->json($historys);
+
+        if ($request->type_list_id) {
+            $array = [];
+            if ($request->type_list_id) {
+                $array = explode(',', $request->type_list_id);
+                $array = array_map(function ($item) {
+                    return new \MongoDB\BSON\ObjectId($item);
+                }, $array);
+            }
+
+            $list = DB::collection('lists')->raw(function ($collection) use ($limit, $page, $array) {
+                return $collection->aggregate([
+                    [
+                        '$addFields' => [
+                            'type_list_id' => ['$toObjectId' => '$type_list_id'] // แปลง type_list_id ให้เป็น ObjectId
+                        ]
+                    ],
+                    [
+                        '$match' => [
+                            'type_list_id' => ['$in' => $array]
+                        ]
+                    ],
+                    [
+                        '$lookup' => [
+                            'from' => 'list_types',       // ชื่อ collection ที่จะเชื่อมโยง
+                            'localField' => 'type_list_id', // ฟิลด์ที่ถูกแปลงเป็น ObjectId
+                            'foreignField' => '_id',       // ฟิลด์ใน collection list_types
+                            'as' => 'data'                // ฟิลด์ที่จะเก็บผลลัพธ์ที่เชื่อมโยง
+                        ]
+                    ],
+                    [
+                        '$skip' => ((int)$page - 1) * (int)$limit
+                    ],
+                    [
+                        '$limit' => (int) $limit
+                    ]
+                ]);
+            });
+
+            $listArray = iterator_to_array($list);
+            return response()->json([
+                'status' => 200,
+                'data' => $listArray,
+                'params' => $request->all(),
+                'array' => $array
+            ]);
+        } else {
+            $list = DB::collection('lists')->raw(function ($collection) use ($limit, $page) {
+                return $collection->aggregate([
+                    [
+                        '$addFields' => [
+                            'type_list_id' => ['$toObjectId' => '$type_list_id'] // แปลง type_list_id ให้เป็น ObjectId
+                        ]
+                    ],
+                    [
+                        '$lookup' => [
+                            'from' => 'list_types',       // ชื่อ collection ที่จะเชื่อมโยง
+                            'localField' => 'type_list_id', // ฟิลด์ที่ถูกแปลงเป็น ObjectId
+                            'foreignField' => '_id',       // ฟิลด์ใน collection list_types
+                            'as' => 'data'                // ฟิลด์ที่จะเก็บผลลัพธ์ที่เชื่อมโยง
+                        ]
+                    ],
+                    [
+                        '$skip' => ((int)$page - 1) * (int)$limit
+                    ],
+                    [
+                        '$limit' => (int) $limit
+                    ]
+                ]);
+            });
+
+            $listArray = iterator_to_array($list);
+            return response()->json($listArray);
+        }
     }
 
     /**
      * @OA\Post(
-     *     path="/api/list",
+     *     path="/api/v1/list",
      *     operationId="createLists",
      *     tags={"Lists"},
      *     summary="Create a new list with dynamic fields",
@@ -186,7 +227,7 @@ class ListsController extends Controller
     /**
      * /**
      * @OA\Get(
-     *      path="/api/list/{id}",
+     *      path="/api/v1/list/{id}",
      *      operationId="getListsById",
      *      tags={"Lists"},
      *      summary="Get list of lists",
@@ -220,7 +261,7 @@ class ListsController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/list/update",
+     *     path="/api/v1/list/update",
      *     operationId="updateLists",
      *     tags={"Lists"},
      *     summary="Create a new list with dynamic fields",
@@ -326,7 +367,7 @@ class ListsController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/list/{id}",
+     *     path="/api/v1/list/{id}",
      *     operationId="deleteLists",
      *     tags={"Lists"},
      *     summary="Delete a list",

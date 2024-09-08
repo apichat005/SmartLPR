@@ -211,6 +211,8 @@ return [
 
                     'passport' => []
                     */
+
+                    'bearerAuth' => []
                 ],
             ],
         ],

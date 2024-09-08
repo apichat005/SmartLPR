@@ -14,7 +14,7 @@ class HistorysController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/history/{date_start}/{date_end}/{gate}/{page}/{limit}",
+     *     path="/api/v1/history/{date_start}/{date_end}/{gate}/{page}/{limit}",
      *     operationId="history",
      *     tags={"History"},
      *     summary="Get history of items",
@@ -105,7 +105,7 @@ class HistorysController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/history",
+     *     path="/api/v1/history",
      *     summary="Store a newly created history in storage",
      *     tags={"History"},
      *     @OA\RequestBody(
@@ -369,7 +369,7 @@ class HistorysController extends Controller
 
     /**
      * @OA\Get(
-     *    path="/api/history/{id}",
+     *    path="/api/v1/history/{id}",
      *    summary="Display the specified history",
      *    tags={"History"},
      *    @OA\Parameter(

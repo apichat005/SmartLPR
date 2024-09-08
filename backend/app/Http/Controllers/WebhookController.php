@@ -9,7 +9,7 @@ class WebhookController extends Controller
 {
     /**
      * @OA\Get(
-     *    path="/api/webhook",
+     *    path="/api/v1/webhook",
      * summary="Get all webhooks",
      * tags={"webhook"},
      * @OA\Response(
@@ -26,7 +26,7 @@ class WebhookController extends Controller
 
     /**
      * @OA\Post(
-     *    path="/api/webhook",
+     *    path="/api/v1/webhook",
      *    summary="Retrieve the specified webhook using form data",
      *    tags={"webhook"},
      *    @OA\RequestBody(
@@ -64,7 +64,7 @@ class WebhookController extends Controller
 
     /**
      * @OA\Post(
-     *    path="/api/webhook/update",
+     *    path="/api/v1/webhook/update",
      *    summary="Update the specified webhook using form data",
      *    tags={"webhook"},
      *    @OA\RequestBody(
@@ -108,7 +108,7 @@ class WebhookController extends Controller
 
     /**
      * @OA\Delete(
-     *    path="/api/webhook/{id}",
+     *    path="/api/v1/webhook/{id}",
      *    summary="Delete the specified webhook",
      *    tags={"webhook"},
      *    @OA\Parameter(

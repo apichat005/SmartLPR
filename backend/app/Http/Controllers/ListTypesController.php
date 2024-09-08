@@ -10,7 +10,7 @@ class ListTypesController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/type_list",
+     *     path="/api/v1/type_list",
      *    summary="Get list of list types",
      *    tags={"list_types"},
      *   description="Returns list of list types",
@@ -28,7 +28,7 @@ class ListTypesController extends Controller
 
     /**
      * @OA\Post(
-     *    path="/api/type_list",
+     *    path="/api/v1/type_list",
      *    summary="Create a new list type",
      *    tags={"list_types"},
      *    @OA\RequestBody(
@@ -87,7 +87,7 @@ class ListTypesController extends Controller
 
     /**
      * @OA\Get(
-     *    path="/api/type_list/{id}",
+     *    path="/api/v1/type_list/{id}",
      *   summary="Get list type by id",
      *  tags={"list_types"},
      * description="Returns list type by id",
@@ -114,7 +114,7 @@ class ListTypesController extends Controller
 
     /**
      * @OA\Post(
-     *    path="/api/type_list/update",
+     *    path="/api/v1/type_list/update",
      *    summary="Create a new list type",
      *    tags={"list_types"},
      *    @OA\RequestBody(
@@ -174,6 +174,17 @@ class ListTypesController extends Controller
             }
         }
         $list_types->save();
+        if ($list_types) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'List type updated successfully'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 400,
+                'message' => 'List type not found'
+            ]);
+        }
     }
 
     /**

@@ -18,12 +18,18 @@ class LinesController extends Controller
      * version="1.0.0",
      * description="Open API for Smart LPR",
      * )
-     * 
+     * @OA\SecurityScheme(
+     *     securityScheme="bearerAuth",
+     *     type="http",
+     *     scheme="bearer",
+     *     bearerFormat="JWT",
+     *     description="JWT Authorization header using the Bearer scheme."
+     * )
      * /
 
     /**
      * @OA\Get(
-     *    path="/api/lines",
+     *    path="/api/v1/lines",
      *  summary="Get all lines",
      * tags={"lines"},
      * @OA\Response(
@@ -34,6 +40,7 @@ class LinesController extends Controller
      */
     public function index()
     {
+
         $lines = lines::all();
         return response()->json($lines);
     }
@@ -42,7 +49,7 @@ class LinesController extends Controller
     // form data
     /**
      * @OA\Post(
-     *   path="/api/lines",
+     *   path="/api/v1/lines",
      *  summary="Create a new line",
      * tags={"lines"},
      * @OA\RequestBody(
@@ -92,7 +99,7 @@ class LinesController extends Controller
 
     /**
      * @OA\Get(
-     *   path="/api/lines/{id}",
+     *   path="/api/v1/lines/{id}",
      *  summary="Get line by id",
      * tags={"lines"},
      * @OA\Parameter(
@@ -118,7 +125,7 @@ class LinesController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/lines/update",
+     *     path="/api/v1/lines/update",
      *     summary="Update line by id",
      *     tags={"lines"},
      *     @OA\RequestBody(
@@ -163,8 +170,6 @@ class LinesController extends Controller
             $line->line_token = $request->line_token;
             $line->save();
 
-
-
             return response()->json([
                 'status' => 200,
                 'message' => 'Line updated successfully',
@@ -181,7 +186,7 @@ class LinesController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/lines/{id}",
+     *     path="/api/v1/lines/{id}",
      *     summary="Delete line by id",
      *     tags={"lines"},
      *     @OA\Parameter(

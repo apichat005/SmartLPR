@@ -6,7 +6,7 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/api/accounts/{page}/{limit}": {
+        "/api/v1/accounts/{page}/{limit}": {
             "get": {
                 "tags": [
                     "accounts"
@@ -44,7 +44,74 @@
                 }
             }
         },
-        "/api/gates": {
+        "/api/v1/accounts/{id}": {
+            "get": {
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Get account by ID",
+                "operationId": "92d5e52983a42663a671eadf91d4e2a3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of account to return",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "account not found"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "login"
+                ],
+                "summary": "Login",
+                "operationId": "34d49de46e0fc2b1c6af3db9a4e3d7f2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "username": {
+                                        "description": "Username",
+                                        "type": "string",
+                                        "example": "username"
+                                    },
+                                    "password": {
+                                        "description": "Password",
+                                        "type": "string",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/v1/gates": {
             "get": {
                 "tags": [
                     "gates"
@@ -63,7 +130,7 @@
                     "gates"
                 ],
                 "summary": "Create a new gate",
-                "operationId": "719670e41b472ed0fdec949157689e49",
+                "operationId": "21698d6a4b396624197b3f7e77374e64",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -118,13 +185,13 @@
                 }
             }
         },
-        "/api/gates/{id}": {
+        "/api/v1/gates/{id}": {
             "get": {
                 "tags": [
                     "gates"
                 ],
                 "summary": "Get gate by id",
-                "operationId": "936a96195354965ff30d3d959104a9a0",
+                "operationId": "9ef9461b25752a52410bbfab6c2bfe0f",
                 "parameters": [
                     {
                         "name": "id",
@@ -150,7 +217,7 @@
                     "gates"
                 ],
                 "summary": "Delete gate by id",
-                "operationId": "a985b50247ebb512460b2f3c5fb7567d",
+                "operationId": "ed25b1db66318db935148283c68dbab2",
                 "parameters": [
                     {
                         "name": "id",
@@ -169,13 +236,13 @@
                 }
             }
         },
-        "/api/gates/update": {
+        "/api/v1/gates/update": {
             "post": {
                 "tags": [
                     "gates"
                 ],
                 "summary": "Create a update gate",
-                "operationId": "3f3aa5d1bd4b39a5afa38602a01fd31a",
+                "operationId": "2c9e8a327f0f3e782398e5dab5e724e6",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -235,7 +302,7 @@
                 }
             }
         },
-        "/api/history/{date_start}/{date_end}/{gate}/{page}/{limit}": {
+        "/api/v1/history/{date_start}/{date_end}/{gate}/{page}/{limit}": {
             "get": {
                 "tags": [
                     "History"
@@ -307,13 +374,13 @@
                 }
             }
         },
-        "/api/history": {
+        "/api/v1/history": {
             "post": {
                 "tags": [
                     "History"
                 ],
                 "summary": "Store a newly created history in storage",
-                "operationId": "9cb0da747db893bc2f6e873291d6757c",
+                "operationId": "d276b0f967aaec24c676e1290f07e897",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -367,13 +434,13 @@
                 }
             }
         },
-        "/api/history/{id}": {
+        "/api/v1/history/{id}": {
             "get": {
                 "tags": [
                     "History"
                 ],
                 "summary": "Display the specified history",
-                "operationId": "c6638f4737e3b686f7356cf7ee521b23",
+                "operationId": "c9c548a03de9b70d773d28eb6c0dd6f1",
                 "parameters": [
                     {
                         "name": "id",
@@ -396,13 +463,13 @@
                 }
             }
         },
-        "/api/lines": {
+        "/api/v1/lines": {
             "get": {
                 "tags": [
                     "lines"
                 ],
                 "summary": "Get all lines",
-                "operationId": "ef5bce87b9f6a3e0f45adb3402238500",
+                "operationId": "1cc60588c8def4a27f1b57a1b57a9993",
                 "responses": {
                     "200": {
                         "description": "List all lines"
@@ -414,7 +481,7 @@
                     "lines"
                 ],
                 "summary": "Create a new line",
-                "operationId": "cc272dc99053db1c534aee291d521cf5",
+                "operationId": "18a246e6832859aff9704f8ccbe6ac86",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -439,13 +506,13 @@
                 }
             }
         },
-        "/api/lines/{id}": {
+        "/api/v1/lines/{id}": {
             "get": {
                 "tags": [
                     "lines"
                 ],
                 "summary": "Get line by id",
-                "operationId": "81e11ea1d9df494e76fe5640ae48bac0",
+                "operationId": "ba744fbf948dd01c2f6a2072ba78f903",
                 "parameters": [
                     {
                         "name": "id",
@@ -468,7 +535,7 @@
                     "lines"
                 ],
                 "summary": "Delete line by id",
-                "operationId": "b106eac9729504747f21ee2e3fbd934e",
+                "operationId": "2f80184749a2ff5aed19000555fe0308",
                 "parameters": [
                     {
                         "name": "id",
@@ -487,13 +554,13 @@
                 }
             }
         },
-        "/api/lines/update": {
+        "/api/v1/lines/update": {
             "post": {
                 "tags": [
                     "lines"
                 ],
                 "summary": "Update line by id",
-                "operationId": "1ac62d01ac9d173093b90e2cfac5d1b3",
+                "operationId": "b20d6c15b4af91544042349ec6e6e8e4",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -523,14 +590,14 @@
                 }
             }
         },
-        "/api/type_list": {
+        "/api/v1/type_list": {
             "get": {
                 "tags": [
                     "list_types"
                 ],
                 "summary": "Get list of list types",
                 "description": "Returns list of list types",
-                "operationId": "5026525fcbdbfc785b93c674241b60eb",
+                "operationId": "fca234d9f6819eea407a631f90165e2e",
                 "responses": {
                     "200": {
                         "description": "Response Message"
@@ -542,7 +609,7 @@
                     "list_types"
                 ],
                 "summary": "Create a new list type",
-                "operationId": "56eb8104ae945f2b8acd377bd14ef7ce",
+                "operationId": "6acf68bd31d3926dbf67bdafa3d7aeb3",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -577,14 +644,14 @@
                 }
             }
         },
-        "/api/type_list/{id}": {
+        "/api/v1/type_list/{id}": {
             "get": {
                 "tags": [
                     "list_types"
                 ],
                 "summary": "Get list type by id",
                 "description": "Returns list type by id",
-                "operationId": "736f5932ac01f6f560d443761b80b24a",
+                "operationId": "80a57a93cf6dd0e8a79194f3ae8857c5",
                 "parameters": [
                     {
                         "name": "id",
@@ -603,13 +670,13 @@
                 }
             }
         },
-        "/api/type_list/update": {
+        "/api/v1/type_list/update": {
             "post": {
                 "tags": [
                     "list_types"
                 ],
                 "summary": "Create a new list type",
-                "operationId": "3979a6a81dc5ac5beaa100badc398ae4",
+                "operationId": "6c1a0723888c464b21b486a8825f26ec",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -649,7 +716,7 @@
                 }
             }
         },
-        "/api/list/{date_start}/{date_end}/{gate}/{page}/{limit}": {
+        "/api/v1/list/{page}/{limit}": {
             "get": {
                 "tags": [
                     "Lists"
@@ -659,40 +726,8 @@
                 "operationId": "index",
                 "parameters": [
                     {
-                        "name": "date_start",
-                        "in": "query",
-                        "description": "Start date for filtering the list",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "date",
-                            "example": "2023-01-01"
-                        }
-                    },
-                    {
-                        "name": "date_end",
-                        "in": "query",
-                        "description": "End date for filtering the list",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "date",
-                            "example": "2023-01-31"
-                        }
-                    },
-                    {
-                        "name": "gate",
-                        "in": "query",
-                        "description": "Gate number for filtering the list",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "A1"
-                        }
-                    },
-                    {
                         "name": "page",
-                        "in": "query",
+                        "in": "path",
                         "description": "Page number for pagination",
                         "required": false,
                         "schema": {
@@ -702,7 +737,7 @@
                     },
                     {
                         "name": "limit",
-                        "in": "query",
+                        "in": "path",
                         "description": "Number of items per page",
                         "required": false,
                         "schema": {
@@ -721,7 +756,7 @@
                 }
             }
         },
-        "/api/list": {
+        "/api/v1/list": {
             "post": {
                 "tags": [
                     "Lists"
@@ -782,7 +817,7 @@
                 }
             }
         },
-        "/api/list/{id}": {
+        "/api/v1/list/{id}": {
             "get": {
                 "tags": [
                     "Lists"
@@ -838,7 +873,7 @@
                 }
             }
         },
-        "/api/list/update": {
+        "/api/v1/list/update": {
             "post": {
                 "tags": [
                     "Lists"
@@ -906,13 +941,13 @@
                 }
             }
         },
-        "/api/webhook": {
+        "/api/v1/webhook": {
             "get": {
                 "tags": [
                     "webhook"
                 ],
                 "summary": "Get all webhooks",
-                "operationId": "2cfc88d49187447e9732ca1ff78186e5",
+                "operationId": "f13c7aa9ea14174035aa4f72459c0ecd",
                 "responses": {
                     "200": {
                         "description": "List all webhooks"
@@ -924,7 +959,7 @@
                     "webhook"
                 ],
                 "summary": "Retrieve the specified webhook using form data",
-                "operationId": "b12641db2cb8b6a17a9334e7df20537b",
+                "operationId": "97f3d31ca0266652bb539a2bab609c8f",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -952,13 +987,13 @@
                 }
             }
         },
-        "/api/webhook/update": {
+        "/api/v1/webhook/update": {
             "post": {
                 "tags": [
                     "webhook"
                 ],
                 "summary": "Update the specified webhook using form data",
-                "operationId": "42f27eec9eec4ea6a5bbd7affbc55459",
+                "operationId": "2605b5212b508d657eda143299413f7a",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -991,13 +1026,13 @@
                 }
             }
         },
-        "/api/webhook/{id}": {
+        "/api/v1/webhook/{id}": {
             "delete": {
                 "tags": [
                     "webhook"
                 ],
                 "summary": "Delete the specified webhook",
-                "operationId": "7384d621d1194830ecc525f79b98e274",
+                "operationId": "fafcfff6182492535257d1e40cd2f5d3",
                 "parameters": [
                     {
                         "name": "id",
@@ -1024,10 +1059,24 @@
             }
         }
     },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "JWT Authorization header using the Bearer scheme.",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
     "tags": [
         {
             "name": "accounts",
             "description": "accounts"
+        },
+        {
+            "name": "login",
+            "description": "login"
         },
         {
             "name": "gates",
@@ -1052,6 +1101,11 @@
         {
             "name": "webhook",
             "description": "webhook"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": []
         }
     ]
 }
