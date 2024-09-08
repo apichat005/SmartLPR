@@ -48,8 +48,35 @@ class AccountController extends Controller
      */
     public function index($page, $limit)
     {
-        $data = account::paginate($limit, ['*'], 'page', $page);
-        return response()->json($data);
+        $data = account::raw(function ($collection) use ($page, $limit) {
+            return $collection->aggregate([
+                [
+                    '$skip' => ((int)$page - 1) * (int)$limit
+                ],
+                [
+                    '$limit' => (int)$limit
+                ],
+                [
+                    '$lookup' => [
+                        'from' => 'role_lists',
+                        'let' => ['a_role' => ['$toObjectId' => '$a_role']],
+                        'pipeline' => [
+                            [
+                                '$match' => [
+                                    '$expr' => [
+                                        '$eq' => ['$_id', '$$a_role']
+                                    ]
+                                ]
+                            ]
+                        ],
+                        'as' => 'role'
+                    ]
+                ]
+            ]);
+        });
+
+        $listArray = iterator_to_array($data);
+        return response()->json($listArray);
     }
 
     /**

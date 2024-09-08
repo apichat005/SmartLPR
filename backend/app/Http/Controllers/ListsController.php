@@ -207,6 +207,10 @@ class ListsController extends Controller
             foreach ($request->all() as $key => $value) {
                 $list->$key = $value;
             }
+            
+            // ค้นหาวันหมดอายุจากประเภทของ list_types
+            $list_type = DB::collection('list_types')->where('_id', new \MongoDB\BSON\ObjectId($request->type_list_id))->first();
+            $list->end_date = date('Y-m-d', strtotime('+' . $list_type['_exp'] - 1 . ' days'));
             $list->save();
 
             $log = new log_lists();

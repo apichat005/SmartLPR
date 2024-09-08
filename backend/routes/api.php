@@ -11,11 +11,12 @@ use App\Http\Controllers\HistorysController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\RoleListController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\RoleGroupController;
 
 Route::prefix('/login')->group(function () {
     Route::post('/', [AccountController::class, 'login']);
 });
-Route::middleware('check.token')->prefix('/v1')->group(function () {
+Route::middleware(['check.token', 'throttle:1000000,1'])->prefix('/v1')->group(function () {
 
     Route::prefix('/lines')->group(function () {
         Route::get('/', [LinesController::class, 'index']);
@@ -73,6 +74,14 @@ Route::middleware('check.token')->prefix('/v1')->group(function () {
     Route::prefix('/role_list')->group(function () {
         Route::get('/', [RoleListController::class, 'index']);
         Route::post('/', [RoleListController::class, 'store']);
+    });
+
+    Route::prefix('/role_group')->group(function(){
+        Route::get('/', [RoleGroupController::class, 'index']);
+        Route::post('/', [RoleGroupController::class, 'store']);
+        Route::get('/{id}', [RoleGroupController::class, 'show']);
+        Route::post('/update', [RoleGroupController::class, 'update']);
+        Route::delete('/{id}', [RoleGroupController::class, 'destroy']);
     });
 });
 

@@ -941,6 +941,21 @@
                 }
             }
         },
+        "/api/v1/role_group": {
+            "get": {
+                "tags": [
+                    "role_groups"
+                ],
+                "summary": "Get list of role groups",
+                "description": "Returns list of role groups",
+                "operationId": "6f030c8ec304f1854467221459629566",
+                "responses": {
+                    "200": {
+                        "description": "Response Message"
+                    }
+                }
+            }
+        },
         "/api/v1/webhook": {
             "get": {
                 "tags": [
@@ -1097,6 +1112,10 @@
         {
             "name": "Lists",
             "description": "Lists"
+        },
+        {
+            "name": "role_groups",
+            "description": "role_groups"
         },
         {
             "name": "webhook",
