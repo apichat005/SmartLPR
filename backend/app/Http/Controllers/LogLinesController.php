@@ -10,9 +10,10 @@ class LogLinesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($page , $limit)
     {
-        //
+        $log_lines = log_lines::orderBy('id', 'desc')->paginate($limit, ['*'], 'page', $page);
+        return response()->json($log_lines);
     }
 
     /**

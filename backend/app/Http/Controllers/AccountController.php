@@ -46,37 +46,89 @@ class AccountController extends Controller
      *     )
      * )
      */
-    public function index($page, $limit)
+    public function index($page, $limit, Request $request)
     {
-        $data = account::raw(function ($collection) use ($page, $limit) {
-            return $collection->aggregate([
-                [
-                    '$skip' => ((int)$page - 1) * (int)$limit
-                ],
-                [
-                    '$limit' => (int)$limit
-                ],
-                [
-                    '$lookup' => [
-                        'from' => 'role_lists',
-                        'let' => ['a_role' => ['$toObjectId' => '$a_role']],
-                        'pipeline' => [
-                            [
-                                '$match' => [
-                                    '$expr' => [
-                                        '$eq' => ['$_id', '$$a_role']
+        if ($request->group) {
+            $array = [];
+            $array = explode(',', $request->group);
+            $array = array_map(function ($item) {
+                return new \MongoDB\BSON\ObjectId($item);
+            }, $array);
+
+            $data = account::raw(function ($collection) use ($page, $limit, $array) {
+                return $collection->aggregate([
+                    [
+                        '$skip' => ((int)$page - 1) * (int)$limit
+                    ],
+                    [
+                        '$limit' => (int)$limit
+                    ],
+                    [
+                        '$addFields' => [
+                            'a_role' => ['$toObjectId' => '$a_role'] // แปลง type_list_id ให้เป็น ObjectId
+                        ]
+                    ],
+                    [
+                        '$match' => [
+                            'a_role' => ['$in' => $array]
+                        ]
+                    ],
+                    [
+                        '$lookup' => [
+                            'from' => 'role_groups',
+                            'localField' => 'a_role',
+                            'foreignField' => '_id',
+                            'as' => 'role'
+                        ]
+                    ]
+                ]);
+            });
+
+            $listArray = iterator_to_array($data);
+            // count total
+            $total = account::count();
+            return response()->json([
+                'data' => $listArray,
+                'total' => $total,
+                'array' => $array
+            ]);
+        } else {
+            $data = account::raw(function ($collection) use ($page, $limit) {
+                return $collection->aggregate([
+                    [
+                        '$skip' => ((int)$page - 1) * (int)$limit
+                    ],
+                    [
+                        '$limit' => (int)$limit
+                    ],
+                    [
+                        '$lookup' => [
+                            'from' => 'role_groups',
+                            'let' => ['a_role' => ['$toObjectId' => '$a_role']],
+                            'pipeline' => [
+                                [
+                                    '$match' => [
+                                        '$expr' => [
+                                            '$eq' => ['$_id', '$$a_role']
+                                        ]
                                     ]
                                 ]
-                            ]
-                        ],
-                        'as' => 'role'
+                            ],
+                            'as' => 'role'
+                        ]
                     ]
-                ]
-            ]);
-        });
+                ]);
+            });
 
-        $listArray = iterator_to_array($data);
-        return response()->json($listArray);
+            $listArray = iterator_to_array($data);
+            // count total
+            $total = account::count();
+            return response()->json([
+                'data' => $listArray,
+                'total' => $total,
+                'array' => []
+            ]);
+        }
     }
 
     /**
@@ -89,7 +141,7 @@ class AccountController extends Controller
 
     /**
      * @OA\Get(
-     *    path="/api/v1/accounts/{id}", 
+     *    path="/api/v1/accounts/{id}",
      *   summary="Get account by ID",
      *  tags={"accounts"},
      * @OA\Parameter(
@@ -176,7 +228,7 @@ class AccountController extends Controller
      *         description="Invalid input"
      *     )
      * )
-     */ 
+     */
     public function login(Request $request)
     {
         // สร้าง token ใหม่ และส่งกลับไป

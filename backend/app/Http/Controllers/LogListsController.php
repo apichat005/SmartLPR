@@ -10,9 +10,10 @@ class LogListsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($page, $limit)
     {
-        //
+        $log_lists = log_lists::orderBy('id', 'desc')->paginate($limit, ['*'], 'page', $page);
+        return response()->json($log_lists);
     }
 
     /**

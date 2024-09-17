@@ -12,11 +12,14 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\RoleListController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\RoleGroupController;
+use App\Http\Controllers\LogListsController;
+use App\Http\Controllers\LogGatesController;
+use App\Http\Controllers\LogLinesController;
 
 Route::prefix('/login')->group(function () {
     Route::post('/', [AccountController::class, 'login']);
 });
-Route::middleware(['check.token', 'throttle:1000000,1'])->prefix('/v1')->group(function () {
+Route::middleware(['check.token'])->prefix('/v1')->group(function () {
 
     Route::prefix('/lines')->group(function () {
         Route::get('/', [LinesController::class, 'index']);
@@ -64,7 +67,7 @@ Route::middleware(['check.token', 'throttle:1000000,1'])->prefix('/v1')->group(f
     });
 
     Route::prefix('/accounts')->group(function () {
-        Route::get('/{page}/{limit}', [AccountController::class, 'index']);
+        Route::any('/{page}/{limit}', [AccountController::class, 'index']);
         Route::post('/', [AccountController::class, 'store']);
         Route::get('/{id}', [AccountController::class, 'show']);
         Route::post('/update', [AccountController::class, 'update']);
@@ -83,6 +86,19 @@ Route::middleware(['check.token', 'throttle:1000000,1'])->prefix('/v1')->group(f
         Route::post('/update', [RoleGroupController::class, 'update']);
         Route::delete('/{id}', [RoleGroupController::class, 'destroy']);
     });
+
+    Route::prefix('/logs')->group(function(){
+        Route::prefix('/lists')->group(function(){
+            Route::get('/{page}/{limit}', [LogListsController::class, 'index']);
+        });
+        Route::prefix('/gates')->group(function(){
+            Route::get('/{page}/{limit}', [LogGatesController::class, 'index']);
+        });
+        Route::prefix('/lines')->group(function(){
+            Route::get('/{page}/{limit}', [LogLinesController::class, 'index']);
+        });
+    });
+
 });
 
 Route::prefix('/openapi')->group(function () {

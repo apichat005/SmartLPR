@@ -49,8 +49,6 @@ class ListsController extends Controller
     public function index($page, $limit, Request $request)
     {
         // ตรวจสอบว่ามีการส่งค่า type_list_id มาหรือไม่ แปลงเป็น array
-
-
         if ($request->type_list_id) {
             $array = [];
             if ($request->type_list_id) {
@@ -207,7 +205,7 @@ class ListsController extends Controller
             foreach ($request->all() as $key => $value) {
                 $list->$key = $value;
             }
-            
+
             // ค้นหาวันหมดอายุจากประเภทของ list_types
             $list_type = DB::collection('list_types')->where('_id', new \MongoDB\BSON\ObjectId($request->type_list_id))->first();
             $list->end_date = date('Y-m-d', strtotime('+' . $list_type['_exp'] - 1 . ' days'));
@@ -236,7 +234,7 @@ class ListsController extends Controller
      *      tags={"Lists"},
      *      summary="Get list of lists",
      *      description="Returns list of lists",
-     *    @OA\Parameter(    
+     *    @OA\Parameter(
      *        name="id",
      *       in="path",
      *      required=true,

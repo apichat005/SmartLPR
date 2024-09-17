@@ -10,9 +10,10 @@ class LogGatesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($page , $limit)
     {
-        //
+        $log_gates = log_gates::orderBy('id', 'desc')->paginate($limit, ['*'], 'page', $page);
+        return response()->json($log_gates);
     }
 
     /**
