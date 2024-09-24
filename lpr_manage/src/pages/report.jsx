@@ -188,8 +188,6 @@ export default function Lpr() {
     ];
 
 
-
-
     useEffect(() => {
         geteGate()
         getType()

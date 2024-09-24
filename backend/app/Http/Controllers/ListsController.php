@@ -421,4 +421,29 @@ class ListsController extends Controller
             ]);
         }
     }
+
+    public function remove(Request $request){
+        $lpr = $request->lpr;
+        $list = lists::where('lpr', $lpr)->first();
+        if ($list) {
+            $list->delete();
+
+            $log = new log_lists();
+            $log->ref_id = $list->_id;
+            $log->type = 'delete';
+            $log->msg = 'ลบข้อมูลรายการ';
+            $log->timestamp = date('Y-m-d H:i:s');
+            $log->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'ลบข้อมูลเรียบร้อยแล้ว'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 400,
+                'message' => 'ไม่พบข้อมูลรายการ'
+            ]);
+        }
+    }
 }

@@ -50,6 +50,7 @@ Route::middleware(['check.token'])->prefix('/v1')->group(function () {
         Route::post('/', [ListsController::class, 'store']);
         Route::get('/{id}', [ListsController::class, 'show']);
         Route::post('/update', [ListsController::class, 'update']);
+        Route::post('/remove', [ListsController::class, 'remove']);
         Route::delete('/{id}', [ListsController::class, 'destroy']);
     });
 

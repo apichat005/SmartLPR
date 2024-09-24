@@ -892,10 +892,10 @@ const customTheme = {
 
 // check session 
 ReactDOM.createRoot(document.getElementById('root')).render(
-	<React.StrictMode>
+	// <React.StrictMode>
 		<FluentProvider theme={customTheme}>
 			<App />
 		</FluentProvider>
-	</React.StrictMode>
+	// </React.StrictMode>
 )
 

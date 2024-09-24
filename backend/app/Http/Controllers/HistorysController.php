@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\historys;
+use App\Models\gates;
 use App\Models\lists;
 use App\Models\webhook;
 use App\Models\log_webhook;
 use App\Models\log_lpr_diffs;
+use App\Models\list_types;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -114,7 +116,7 @@ class HistorysController extends Controller
      *             mediaType="multipart/form-data",
      *             @OA\Schema(
      *             @OA\Property(
-     *                 property="lpr",
+     *                 property="list_id",
      *                 type="string",
      *                 description="License plate recognition (LPR) value",
      *                 example="ABC1234"
@@ -167,18 +169,20 @@ class HistorysController extends Controller
     {
         if ($request->hasFile('image')) {
             // check lpr for required
-            if (empty($request->lpr)) {
-                return response()->json(['status' => 400, 'message' => 'ไม่พบข้อมูลป้ายทะเบียน']);
+            if (empty($request->list_id)) {
+                return response()->json(['status' => 400, 'message' => 'ไม่พบข้อมูลป้ายทะเบียน', 'open_gate' => 0, 'send_line' => 0]);
             } else {
                 // ตรวจสอบป้ายทะเบียนตามเงื่อนไขที่กำหนด
-                $lpr = $this->compareLicensePlate($request->lpr);
+                $lpr = $this->compareLicensePlate($request->list_id);
                 if ($lpr['status']) {
                     return response()->json([
                         'status' => 400,
                         'message' => $lpr['status_txt'],
                         'lpr' => $lpr['lpr_right'],
                         'type_name' => $lpr['type_name'],
-                        'exp_date' => $lpr['exp_date']
+                        'exp_date' => $lpr['exp_date'],
+                        'open_gate' => $lpr['open_gate'],
+                        'send_line' => $lpr['send_line']
                     ]);
                 }
 
@@ -189,13 +193,17 @@ class HistorysController extends Controller
                 $image = $request->file('image');
                 $image_name = time();
                 $image->move(public_path('images'), $image_name);
+                $gate_id = $request->gate;
+                $gate = gates::where('_id', (string)$gate_id)->first();
+                $gate_name = $gate['gate_name'];
+                $short = $gate['short'];
+
 
                 $history = new historys();
                 $history->lpr = $lpr['lpr_right'];
                 $history->type = $lpr['type_name'];
-                $history->traffic_type = ['IN', 'OUT'][rand(0, 1)];
                 $history->image = $image_name;
-                $history->gate_id = $request->gate_id;
+                $history->gate_id = $gate_id;
                 $history->timestamp = date('Y-m-d H:i:s');
                 $history->save();
 
@@ -262,6 +270,8 @@ class HistorysController extends Controller
                     'lpr' => $lpr['lpr_right'],
                     'type_name' => $lpr['type_name'],
                     'exp_date' => $lpr['exp_date'],
+                    'open_gate' => $lpr['open_gate'],
+                    'send_line' => $lpr['send_line'],
                     'data' => $lpr
                 ]);
             }
@@ -274,11 +284,11 @@ class HistorysController extends Controller
     {
         /**
          * 1. รับ lpr มาจาก request
-         * 2. ค้นหาป้ายทะเบียนในตาราง historys ว่ามีป้ายทะเบียนนี้อยู่แล้วหรือไม่ โดยหาค่าที่ใกล้เคียงด้วย Algorithm ที่กำหนด 
+         * 2. ค้นหาป้ายทะเบียนในตาราง historys ว่ามีป้ายทะเบียนนี้อยู่แล้วหรือไม่ โดยหาค่าที่ใกล้เคียงด้วย Algorithm ที่กำหนด
          *    2.1 ถ้ามีอยู่ให้ตรวจสอบว่าเวลาล่าสุดเกิน 3 นาทีหรือไม่ ถ้าเกินบันทึกประวัติใหม่ ถ้าไม่ให้ return true
          * 3. ตรวจสอบอีกครั้งว่าป้ายทะเบียนนี้อยู่ในตาราง lists หรือไม่ โดยหาค่าที่ใกล้เคียงด้วย Algorithm ที่กำหนด
          *    3.1 ถ้าอยู่ให้ตรวจสอบว่าป้ายทะเบียนนี้อยู่ใน blacklist หรือ whitelist
-         * 
+         *
          * ใช้ ai หรือ algorithm ในการเปรียบเทียบป้ายทะเบียน โดยใช้ library ที่เหมาะสม
          */
 
@@ -287,6 +297,8 @@ class HistorysController extends Controller
         $status = false;
         $status_txt = '';
         $lpr_right = '';
+        $open_gate = '';
+        $send_line = '';
         $type_name = '';
         $exp_date = '';
         // ค้นหาป้ายทะเบียนที่อยู่ในตาราง historys และตรวจสอบเวลาสุดท้าย
@@ -298,6 +310,11 @@ class HistorysController extends Controller
             if (levenshtein($lpr, $plate->lpr) <= $maxDistance) {
                 $status = true; // ถ้ามีป้ายทะเบียนใกล้เคียงให้ตั้งสถานะเป็นจริง
                 $status_txt = 'ป้ายทะเบียนใกล้เคียงใน historys';
+                $lpr_right = $plate->lpr;
+                $type_name = 'Visitor';
+                $open_gate = 0;
+                $send_line = 0;
+                $exp_date = date('Y-m-d 23:59:59');
                 break; // ไม่มีความจำเป็นต้องตรวจสอบเพิ่มเติมใน historys
             }
         }
@@ -350,10 +367,25 @@ class HistorysController extends Controller
                 $status = false; // ตั้งสถานะเป็นจริงถ้าพบป้ายทะเบียนที่ใกล้เคียงใน lists
                 $lpr_right = $list->lpr; // ตั้งค่าป้ายทะเบียนใหม่เป็นป้ายทะเบียนใน lists
                 $type_name = $list->list_type[0]->type_name;
+                $open_gate = $list->list_type[0]->open_gate;
+                $send_line = $list->list_type[0]->send_line;
                 $exp_date = $list->end;
                 $status_txt = 'ป้ายทะเบียนใกล้เคียงใน lists';
                 break; // ไม่มีความจำเป็นต้องตรวจสอบเพิ่มเติมใน lists
             }
+        }
+
+
+        // หากไม่พบป้ายทะเบียนใกล้เคียงใน historys หรือ lists ให้ตั้งสถานะเป็น visitor
+        if (!$status) {
+            $lpr_right = $lpr;
+            $status_txt = 'ป้ายทะเบียนถูกต้อง';
+            // ค้นหาจาก type_list
+            $list_type = list_types::where('_id', '66dad747ded2d1c0e4053a0b')->first();
+            $type_name = $list_type->type_name;
+            $open_gate = $list_type->open_gate;
+            $send_line = $list_type->send_line;
+            $exp_date = date('Y-m-d 23:59:59');
         }
 
         // คืนค่าสถานะว่าเจอป้ายทะเบียนที่ใกล้เคียงหรือไม่ ป้ายทะเบียนที่ถูกต้อง
@@ -363,7 +395,9 @@ class HistorysController extends Controller
             'log' =>  $diff ?? '',
             'lpr_right' => $lpr_right,
             'type_name' => $type_name,
-            'exp_date' => $exp_date
+            'exp_date' => $exp_date,
+            'open_gate' => $open_gate,
+            'send_line' => $send_line
         ];
     }
 

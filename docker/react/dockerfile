@@ -2,9 +2,9 @@ FROM node:22-alpine3.19
 
 WORKDIR /app
 
-COPY ./lpr/package.json .
+COPY ./lpr_manage/package.json .
 
-COPY ./lpr .
+COPY ./lpr_manage .
 
 # RUN npm install
 
@@ -13,6 +13,7 @@ RUN yarn
 # RUN npm i react-router-dom
 
 #RUN npm install react-transition-group
+RUN yarn add axios
 
 
 EXPOSE 5173 

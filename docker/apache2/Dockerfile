@@ -48,12 +48,13 @@ RUN chown -R www-data:www-data /var/www/html
 # Install Laravel MongoDB package using Composer
 RUN composer require mongodb/laravel-mongodb
 
-# set conjob for laravel schedule
+# Set up cron jobs
 RUN (crontab -l ; echo "* * * * * cd /var/www/html && /usr/local/bin/php artisan app:fetch-data") | crontab -
-RUN (crontab -l ; echo "59 23 * * * sync; echo 1 > /proc/sys/vm/drop_caches") | crontab -
-RUN (crontab -l ; echo "59 23 * * * sync; echo 2 > /proc/sys/vm/drop_caches") | crontab -
-RUN (crontab -l ; echo "59 23 * * * sync; echo 3 > /proc/sys/vm/drop_caches") | crontab -
-RUN service cron start
+    RUN (crontab -l ; echo "59 23 * * * sync; echo 1 > /proc/sys/vm/drop_caches") | crontab -
+    RUN (crontab -l ; echo "59 23 * * * sync; echo 2 > /proc/sys/vm/drop_caches") | crontab -
+    RUN (crontab -l ; echo "59 23 * * * sync; echo 3 > /proc/sys/vm/drop_caches") | crontab -
+    RUN service cron start
+
 # Change DocumentRoot to point to the public directory
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf && \
     sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf

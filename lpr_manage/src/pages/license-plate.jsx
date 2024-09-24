@@ -315,7 +315,7 @@ export default function Lpr() {
                                                             })
                                                                 .then(response => response.json())
                                                                 .then(data => {
-                                                                    if (data.status === 'success') {
+                                                                    if (data.status === 200) {
                                                                         Swal.fire({
                                                                             icon: 'success',
                                                                             title: 'เพิ่มข้อมูลสำเร็จ',
