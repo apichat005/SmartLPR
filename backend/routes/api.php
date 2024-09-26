@@ -112,3 +112,7 @@ Route::prefix('/openapi')->group(function () {
     Route::get('/accounts/{page}/{limit}', [AccountController::class, 'index']);
     Route::get('/role_list', [RoleListController::class, 'index']);
 });
+
+Route::prefix('/upload')->group(function () {
+    Route::get('/lpr', [ListsController::class, 'upload_csv_lpr']);
+});

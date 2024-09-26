@@ -54,6 +54,8 @@ import useSWR from 'swr'
 
 export default function Lpr() {
     const navigate = useNavigate()
+    const [page, setPage] = useState(1)
+    const [limit, setLimit] = useState(10)
     const [checked, setChecked] = React.useState(false);
     const [keyword, setKeyword] = useState('')
     const [datestart, setDatestart] = useState(null)
@@ -121,10 +123,8 @@ export default function Lpr() {
         formData.append('starttime', starttime);
         formData.append('endtime', endtime);
 
-        fetch(import.meta.env.VITE_API + '/history/all', {
-            method: 'POST',
-            body: formData
-        })
+        // /{date_start}/{date_end}/{gate}/{page}/{limit}
+        fetch(import.meta.env.VITE_API + `/history/${trandate(datestart)}/${trandate(dateend)}/${selectedGateIds}/${page}/${limit}`)
             .then(response => response.json())
             .then(data => {
                 // if (data.length > 0) {

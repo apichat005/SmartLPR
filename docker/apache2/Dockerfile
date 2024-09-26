@@ -39,6 +39,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Enable Apache modules
 RUN a2enmod rewrite headers
 
+# Create and configure php.ini
+RUN echo "date.timezone = Asia/Bangkok" > /usr/local/etc/php/conf.d/99-custom.ini && \
+    echo "extension=gd" >> /usr/local/etc/php/conf.d/99-custom.ini
+
+
 # Set the working directory
 WORKDIR /var/www/html
 
@@ -47,6 +52,9 @@ RUN chown -R www-data:www-data /var/www/html
 
 # Install Laravel MongoDB package using Composer
 RUN composer require mongodb/laravel-mongodb
+
+# Enable Opcache
+COPY ./docker/apache2/php.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # Set up cron jobs
 RUN (crontab -l ; echo "* * * * * cd /var/www/html && /usr/local/bin/php artisan app:fetch-data") | crontab -

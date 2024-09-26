@@ -446,4 +446,25 @@ class ListsController extends Controller
             ]);
         }
     }
+
+    public function upload_csv_lpr(){
+        $file = public_path('data/lpr_excel.csv');
+        $csv = array_map('str_getcsv', file($file));
+        $header = array_shift($csv);
+        $data = [];
+        foreach ($csv as $row) {
+            $data[] = array_combine($header, $row);
+        }
+
+        foreach ($data as $item) {
+            $list = new lists();
+            $list->fullname = $item['fullname'];
+            $list->lpr = $item['lpr'];
+            $list->note = $item['note'];
+            $list->type_list_id = new \MongoDB\BSON\ObjectId($item['type_list_id']);
+            $list->start_date = $item['start_date'];
+            $list->end_date = $item['end_date'];
+            $list->save();
+        }
+    }
 }
